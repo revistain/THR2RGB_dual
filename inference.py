@@ -32,8 +32,8 @@ def inference(args, eval_ds, model, seq_name):
                                         pin_memory=(args.device=="cuda"))
         database_features = np.empty((eval_ds.database_num, args.features_dim), dtype="float32")
         
-        for inputs, indices in tqdm(database_dataloader, ncols=100):
-            flags = torch.zeros(inputs.shape[0], dtype=torch.bool)
+        for inputs, indices in tqdm(database_dataloader, ncols=100):        
+            flags = torch.zeros(inputs.shape[0], dtype=torch.bool).to(args.device)
             features = model(inputs.to(args.device), flags).view(-1, args.features_dim)
             features = features.cpu().numpy()
             database_features[indices.numpy(), :] = features
@@ -44,7 +44,8 @@ def inference(args, eval_ds, model, seq_name):
         start_time = time.time()
         queries_subset_ds = Subset(eval_ds, list(range(eval_ds.database_num, len(eval_ds))))
         queries_dataloader = DataLoader(dataset=queries_subset_ds, num_workers=args.num_workers,
-                                        batch_size=args.infer_batch_size, pin_memory=(args.device=="cuda"))
+                                        batch_size=args.infer_batch_size, prefetch_factor=1,
+                                        pin_memory=(args.device=="cuda"))
         queries_features = np.empty((eval_ds.queries_num, args.features_dim), dtype="float32")
 
         for inputs, indices in tqdm(queries_dataloader, ncols=100):

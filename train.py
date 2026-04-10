@@ -18,7 +18,7 @@ import network
 
 def train(args, start_time):
     '''Datasets'''
-    DATASET_FOLDER = "./Datasets"
+    DATASET_FOLDER = args.datasets_folder
     ############################################################
     args.sequences = args.train_seq
     

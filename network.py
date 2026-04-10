@@ -55,7 +55,7 @@ class RGBTfusion(nn.Module):
         w = F.normalize(w, p=2, dim=1)
         w_rgb, w_thermal = w[:, :256], w[:, 256:]
 
-        if self.eval():
+        if not self.training:
             self.w_rgb_raw = w_rgb
             self.w_thermal_raw = w_thermal
             self.f_rgb_raw = rgb_patch
@@ -74,7 +74,7 @@ class RGBTfusion(nn.Module):
 
         x_fused = w_rgb * rgb_patch + w_thermal * thermal_patch # [B, 256, 768]
         
-        if self.eval():
+        if not self.training:
             self.w_rgb = w_rgb
             self.w_thermal = w_thermal
             self.f_fused = x_fused
@@ -89,35 +89,36 @@ class RGBTVPR_Net(nn.Module):
         self.rgb_backbone = get_backbone(pretrained_foundation, foundation_model_path)
         self.thermal_backbone = get_backbone(pretrained_foundation, foundation_model_path)
 
-        self.fusion = RGBTfusion()
+        self.fusev24 = RGBTfusion()
         self.aggregation = nn.Sequential(L2Norm(), GeM(work_with_tokens=None), Flatten())
 
-       
     def forward(self, x, query_flags: torch.Tensor):
         # x: [B, 6, W, H]
-        thermal_out = self.thermal_backbone(x[:, 3:, :, :])
-        thermal_cls = thermal_out["x_norm_clstoken"]
-        thermal_patch = thermal_out["x_norm_patchtokens"]
+        rgb_out = self.rgb_backbone(x[:, :3, :, :])
+        rgb_cls = rgb_out["x_norm_clstoken"]
+        rgb_patch = rgb_out["x_norm_patchtokens"]
 
-        _, P, D = thermal_patch.shape  # P=256, D=768
+        B, P, D = rgb_patch.shape  # P=256, D=768
 
-        # Database 항목: thermal_patch만 사용
-        database_x = thermal_patch[~query_flags]  # [N_db, 256, 768]
+        # Database 항목: rgb_patch만 사용
+        database_x = rgb_patch[~query_flags]  # [N_db, 256, 768]
 
         # rgb backbone은 query 항목에만 실행 (database는 RGB 미사용)
-        rgb_out = self.rgb_backbone(x[query_flags, :3, :, :])
-        queries_rgb_cls = rgb_out["x_norm_clstoken"]
-        queries_rgb_patch = rgb_out["x_norm_patchtokens"]
-        queries_thermal_cls = thermal_cls[query_flags]
-        queries_thermal_patch = thermal_patch[query_flags]
+        thermal_out = self.thermal_backbone(x[query_flags, 3:, :, :])
+        queries_thermal_cls = thermal_out["x_norm_clstoken"]
+        queries_thermal_patch = thermal_out["x_norm_patchtokens"]
+        queries_rgb_cls = rgb_cls[query_flags]
+        queries_rgb_patch = rgb_patch[query_flags]
 
         # fusion: query 항목에만 적용
-        queries_x = self.fusion(
+        queries_x = self.fusev24(
             queries_rgb_cls, queries_rgb_patch,
             queries_thermal_cls, queries_thermal_patch,
         )
 
-        full_x = torch.cat([queries_x, database_x], dim=0)
+        full_x = torch.empty(B, P, D, device=x.device, dtype=rgb_patch.dtype)
+        full_x[query_flags]  = queries_x
+        full_x[~query_flags] = database_x
         full_x = full_x.permute(0, 2, 1)
 
         full_x = full_x.view(-1, D, 16, 16)
