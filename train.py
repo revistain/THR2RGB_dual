@@ -132,12 +132,10 @@ def train(args, start_time):
                 epoch_losses = np.append(epoch_losses, batch_loss)
                 
                 del global_loss, global_features
-                break
 
             logging.info(f"Epoch[{epoch_num:02d}]({loop_num + 1}/{loops_num}): " +
                         f"current batch triplet loss = {batch_loss:.8f}, " +
                         f"average epoch triplet loss = {epoch_losses.mean():.8f}")
-            break
 
         logging.info(f"epoch {epoch_num:02d} time: {str(datetime.now() - epoch_start_time)[:-7]}, ")
 
