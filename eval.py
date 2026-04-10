@@ -13,7 +13,6 @@ import datasets_dual
 import network
 
 '''Setup'''
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,1'
 parser = Parser()
 args = parser.parse_arguments()
 

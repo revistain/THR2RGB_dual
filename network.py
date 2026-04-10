@@ -1,17 +1,14 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torch.nn.parameter import Parameter
 from backbone.vision_transformer import vit_small, vit_base, vit_large, vit_giant2
-import math
-import numpy as np
-from sklearn.neighbors import NearestNeighbors
-import torchvision.models as models
+
+from torch.profiler import profile, record_function, ProfilerActivity
 
 class GeM(nn.Module):
     def __init__(self, p=3, eps=1e-6, work_with_tokens=False):
         super().__init__()
-        self.p = Parameter(torch.ones(1)*p)
+        self.p = nn.Parameter(torch.ones(1)*p)
         self.eps = eps
         self.work_with_tokens=work_with_tokens
     def forward(self, x):
@@ -75,7 +72,6 @@ class RGBTfusion(nn.Module):
         w_rgb = w[:, :256, :] # [B, 256, 1]
         w_thermal = w[:, 256:, :] # [B, 256, 1]
 
-        '''这样变成一张图了'''
         x_fused = w_rgb * rgb_patch + w_thermal * thermal_patch # [B, 256, 768]
         
         if self.eval():
@@ -86,8 +82,7 @@ class RGBTfusion(nn.Module):
         return x_fused
 
 class RGBTVPR_Net(nn.Module):
-    """The used networks are composed of a backbone and an aggregation layer.
-    """
+    """The used networks are composed of a backbone and an aggregation layer."""
     def __init__(self, pretrained_foundation = False, foundation_model_path = None):
         super().__init__()
 
@@ -98,35 +93,38 @@ class RGBTVPR_Net(nn.Module):
         self.aggregation = nn.Sequential(L2Norm(), GeM(work_with_tokens=None), Flatten())
 
        
-    def forward(self, x):
-        # x: (B, 6, W, H)
-        rgb_x = x[:, :3, :, :]  # 提取前 3 个通道 -> (B, 3, W, H)
-        thermal_x = x[:, 3:, :, :]  # 提取后 3 个通道 -> (B, 3, W, H)
+    def forward(self, x, query_flags: torch.Tensor):
+        # x: [B, 6, W, H]
+        thermal_out = self.thermal_backbone(x[:, 3:, :, :])
+        thermal_cls = thermal_out["x_norm_clstoken"]
+        thermal_patch = thermal_out["x_norm_patchtokens"]
 
-        '''
-        经过 backbone 后的张量：
-        dict_keys(['x_norm_clstoken', 'x_norm_patchtokens', 'x_prenorm', 'masks'])
-        x['x_norm_clstoken']: (B, D), D=768
-        x['x_norm_patchtokens']: (B, num_patchs, D), patch_size=14x14, num_patchs=256
-        x['prenorm']: (B, num_patchs+num_CLS, D), num_CLS=1
-        x['masks']: None
-        '''
-        rgb_x = self.rgb_backbone(rgb_x)    
-        thermal_x = self.thermal_backbone(thermal_x)
-        B, P, D = rgb_x["x_prenorm"].shape
+        _, P, D = thermal_patch.shape  # P=256, D=768
 
-        x = self.fusion(
-            rgb_x["x_norm_clstoken"], rgb_x["x_norm_patchtokens"],
-            thermal_x["x_norm_clstoken"], thermal_x["x_norm_patchtokens"],
+        # Database 항목: thermal_patch만 사용
+        database_x = thermal_patch[~query_flags]  # [N_db, 256, 768]
+
+        # rgb backbone은 query 항목에만 실행 (database는 RGB 미사용)
+        rgb_out = self.rgb_backbone(x[query_flags, :3, :, :])
+        queries_rgb_cls = rgb_out["x_norm_clstoken"]
+        queries_rgb_patch = rgb_out["x_norm_patchtokens"]
+        queries_thermal_cls = thermal_cls[query_flags]
+        queries_thermal_patch = thermal_patch[query_flags]
+
+        # fusion: query 항목에만 적용
+        queries_x = self.fusion(
+            queries_rgb_cls, queries_rgb_patch,
+            queries_thermal_cls, queries_thermal_patch,
         )
-        # x = rgb_x["x_norm_patchtokens"] + thermal_x["x_norm_patchtokens"]
-        x = x.permute(0, 2, 1)
-        x = x.view(B, D, 16, 16)
-        
-        x = self.aggregation(x) # [B, 768]
-        
-        return x
 
+        full_x = torch.cat([queries_x, database_x], dim=0)
+        full_x = full_x.permute(0, 2, 1)
+
+        full_x = full_x.view(-1, D, 16, 16)
+        full_x = self.aggregation(full_x)  # [B, 768]
+
+        return full_x
+    
 def get_backbone(pretrained_foundation, foundation_model_path):
     backbone = vit_base(patch_size=14,img_size=518,init_values=1,block_chunks=0)
     if pretrained_foundation:

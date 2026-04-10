@@ -35,9 +35,6 @@ class Parser():
         ### Inference settings
         self.parser.add_argument("--infer_batch_size", type=int, default=64,
                             help="Batch size for inference (caching and testing)")
-        self.parser.add_argument('--test_method', type=str, default="hard_resize",
-                            choices=["hard_resize", "single_query", "central_crop", "five_crops", "nearest_crop", "maj_voting"],
-                            help="This includes pre/post-processing methods and prediction refinement")
 
         ### Evaluation settings
         self.parser.add_argument("--majority_weight", type=float, default=0.01, 
@@ -79,6 +76,7 @@ class Parser():
         self.parser.add_argument("--resume", type=str, default=None, nargs='*',
                             help="Path to load checkpoint from, for resuming training or testing.")
         self.parser.add_argument("--save_all", type=bool, default=False)
+        self.parser.add_argument("--comment", type=str, default="default")
     
     def parse_arguments(self):
         args = self.parser.parse_args()

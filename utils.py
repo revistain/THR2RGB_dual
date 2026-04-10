@@ -1,8 +1,9 @@
 import os
 import yaml
 import torch
-from collections import OrderedDict
 import shutil
+from datetime import datetime
+from collections import OrderedDict
 
 def save_to_yaml(args, filename='config.yaml'):
     file_path = os.path.join(args.save_dir, filename)
@@ -43,3 +44,26 @@ def resume_train(args, model, optimizer=None, strict=False):
     if args.resume.endswith("last_model.pth"):  # Copy best model to current save_dir
         shutil.copy(args.resume.replace("last_model.pth", "best_model.pth"), args.save_dir)
     return model, optimizer, best_r5, start_epoch_num, not_improved_num
+
+def save_files(path):
+    import subprocess
+    models_dir = os.path.join(path, "save_codes")
+    if not os.path.exists(models_dir):
+        os.makedirs(models_dir)
+    
+    file_paths = ['Datasets','scripts','commons.py',
+                  'datasets_ws.py', 'datasets_dual.py',
+                  'eval.py', 'loss.py',' inference.py',' parser.py',
+                  'train.py',' util.py', 'network.py']
+
+    for file_path in file_paths:
+        if os.path.exists(file_path):
+            if not os.path.exists(os.path.join(models_dir, file_path)):
+                subprocess.run(['cp', '-r', file_path, models_dir])
+                
+cached_timestamp = None
+def get_timestamp():
+    global cached_timestamp
+    if cached_timestamp is None:
+        cached_timestamp = datetime.now().strftime("%y%m%d_%H%M%S")
+    return cached_timestamp
