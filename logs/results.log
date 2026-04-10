@@ -1,0 +1,301 @@
+2026-04-10 04:57:59   Use 8 GPUs and 80 CPUs
+2026-04-10 04:57:59   
+Traceback (most recent call last):
+  File "/home/jwkim/.local/lib/python3.10/site-packages/scipy/io/matlab/_mio.py", line 39, in _open_file
+    return open(file_like, mode), True
+FileNotFoundError: [Errno 2] No such file or directory: './STHEREO_Mat/KAIST/sthereo_train.mat'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 42, in <module>
+    triplets_ds = datasets_dual.TripletsSTheReODual(args, DATASET_FOLDER)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 206, in __init__
+    super().__init__(args, datasets_folder, split='train')
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 49, in __init__
+    self.matStruct = [loadmat(os.path.join(self.dataset_folder, seq, f'sthereo_{split}.mat'))['dbStruct'] for seq in
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 49, in <listcomp>
+    self.matStruct = [loadmat(os.path.join(self.dataset_folder, seq, f'sthereo_{split}.mat'))['dbStruct'] for seq in
+  File "/home/jwkim/.local/lib/python3.10/site-packages/scipy/io/matlab/_mio.py", line 233, in loadmat
+    with _open_file_context(file_name, appendmat) as f:
+  File "/usr/local/envs/rcv/lib/python3.10/contextlib.py", line 135, in __enter__
+    return next(self.gen)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/scipy/io/matlab/_mio.py", line 17, in _open_file_context
+    f, opened = _open_file(file_like, appendmat, mode)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/scipy/io/matlab/_mio.py", line 45, in _open_file
+    return open(file_like, mode), True
+FileNotFoundError: [Errno 2] No such file or directory: './STHEREO_Mat/KAIST/sthereo_train.mat'
+
+2026-04-10 05:02:18   Use 8 GPUs and 80 CPUs
+2026-04-10 05:02:18   
+Traceback (most recent call last):
+  File "/home/jwkim/.local/lib/python3.10/site-packages/scipy/io/matlab/_mio.py", line 39, in _open_file
+    return open(file_like, mode), True
+FileNotFoundError: [Errno 2] No such file or directory: './Datasets/train/KAIST/sthereo_train.mat'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 42, in <module>
+    triplets_ds = datasets_dual.TripletsSTheReODual(args, DATASET_FOLDER)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 206, in __init__
+    super().__init__(args, datasets_folder, split='train')
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 49, in __init__
+    self.matStruct = [loadmat(os.path.join(self.dataset_folder, split, seq, f'sthereo_{split}.mat'))['dbStruct'] for seq in
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 49, in <listcomp>
+    self.matStruct = [loadmat(os.path.join(self.dataset_folder, split, seq, f'sthereo_{split}.mat'))['dbStruct'] for seq in
+  File "/home/jwkim/.local/lib/python3.10/site-packages/scipy/io/matlab/_mio.py", line 233, in loadmat
+    with _open_file_context(file_name, appendmat) as f:
+  File "/usr/local/envs/rcv/lib/python3.10/contextlib.py", line 135, in __enter__
+    return next(self.gen)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/scipy/io/matlab/_mio.py", line 17, in _open_file_context
+    f, opened = _open_file(file_like, appendmat, mode)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/scipy/io/matlab/_mio.py", line 45, in _open_file
+    return open(file_like, mode), True
+FileNotFoundError: [Errno 2] No such file or directory: './Datasets/train/KAIST/sthereo_train.mat'
+
+2026-04-10 05:02:34   Use 8 GPUs and 80 CPUs
+2026-04-10 05:02:35   There are 0 queries without any positives
+2026-04-10 05:02:35   using MLP layer as FFN
+2026-04-10 05:02:37   
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 50, in <module>
+    model = network.RGBTVPR_Net(pretrained_foundation = True, foundation_model_path = args.foundation_model_path)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/network.py", line 94, in __init__
+    self.rgb_backbone = get_backbone(pretrained_foundation, foundation_model_path)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/network.py", line 131, in get_backbone
+    assert foundation_model_path is not None, "Please specify foundation model path."
+AssertionError: Please specify foundation model path.
+
+2026-04-10 05:03:05   Use 8 GPUs and 80 CPUs
+2026-04-10 05:03:05   There are 0 queries without any positives
+2026-04-10 05:03:06   using MLP layer as FFN
+2026-04-10 05:03:08   
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 50, in <module>
+    model = network.RGBTVPR_Net(pretrained_foundation = True, foundation_model_path = args.foundation_model_path)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/network.py", line 94, in __init__
+    self.rgb_backbone = get_backbone(pretrained_foundation, foundation_model_path)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/network.py", line 135, in get_backbone
+    backbone.load_state_dict(model_dict)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 2189, in load_state_dict
+    raise RuntimeError('Error(s) in loading state_dict for {}:\n\t{}'.format(
+RuntimeError: Error(s) in loading state_dict for DinoVisionTransformer:
+	Unexpected key(s) in state_dict: "register_tokens". 
+
+2026-04-10 05:03:22   Use 8 GPUs and 80 CPUs
+2026-04-10 05:03:23   There are 0 queries without any positives
+2026-04-10 05:03:23   using MLP layer as FFN
+2026-04-10 05:03:26   using MLP layer as FFN
+2026-04-10 05:03:28   
+Traceback (most recent call last):
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/cuda/__init__.py", line 306, in _lazy_init
+    queued_call()
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/cuda/__init__.py", line 174, in _check_capability
+    capability = get_device_capability(d)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/cuda/__init__.py", line 430, in get_device_capability
+    prop = get_device_properties(device)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/cuda/__init__.py", line 448, in get_device_properties
+    return _get_device_properties(device)  # type: ignore[name-defined]
+RuntimeError: device >= 0 && device < num_gpus INTERNAL ASSERT FAILED at "../aten/src/ATen/cuda/CUDAContext.cpp":50, please report a bug to PyTorch. device=, num_gpus=
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 51, in <module>
+    model = model.to(args.device)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1173, in to
+    return self._apply(convert)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 779, in _apply
+    module._apply(fn)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 779, in _apply
+    module._apply(fn)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 779, in _apply
+    module._apply(fn)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 804, in _apply
+    param_applied = fn(param)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1159, in convert
+    return t.to(
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/cuda/__init__.py", line 312, in _lazy_init
+    raise DeferredCudaCallError(msg) from e
+torch.cuda.DeferredCudaCallError: CUDA call failed lazily at initialization with error: device >= 0 && device < num_gpus INTERNAL ASSERT FAILED at "../aten/src/ATen/cuda/CUDAContext.cpp":50, please report a bug to PyTorch. device=, num_gpus=
+
+CUDA call was originally invoked at:
+
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 2, in <module>
+    import torch
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/__init__.py", line 1480, in <module>
+    _C._initExtension(manager_path())
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/cuda/__init__.py", line 238, in <module>
+    _lazy_call(_check_capability)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/cuda/__init__.py", line 235, in _lazy_call
+    _queued_calls.append((callable, traceback.format_stack()))
+
+
+2026-04-10 05:03:56   Use 1 GPUs and 80 CPUs
+2026-04-10 05:03:57   There are 0 queries without any positives
+2026-04-10 05:03:57   using MLP layer as FFN
+2026-04-10 05:03:58   
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 50, in <module>
+    model = network.RGBTVPR_Net(pretrained_foundation = True, foundation_model_path = args.foundation_model_path)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/network.py", line 94, in __init__
+    self.rgb_backbone = get_backbone(pretrained_foundation, foundation_model_path)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/network.py", line 129, in get_backbone
+    backbone = vit_base(patch_size=14,img_size=518,init_values=1,block_chunks=0)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/backbone/vision_transformer.py", line 329, in vit_base
+    model = DinoVisionTransformer(
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/backbone/vision_transformer.py", line 124, in __init__
+    blocks_list = [
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/backbone/vision_transformer.py", line 125, in <listcomp>
+    block_fn(
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/backbone/dinov2/block.py", line 94, in __init__
+    self.attn = attn_class(
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/backbone/dinov2/attention.py", line 44, in __init__
+    self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 103, in __init__
+    self.reset_parameters()
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 109, in reset_parameters
+    init.kaiming_uniform_(self.weight, a=math.sqrt(5))
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/init.py", line 459, in kaiming_uniform_
+    return tensor.uniform_(-bound, bound, generator=generator)
+KeyboardInterrupt
+
+2026-04-10 05:04:08   Use 1 GPUs and 80 CPUs
+2026-04-10 05:04:08   There are 0 queries without any positives
+2026-04-10 05:04:08   using MLP layer as FFN
+2026-04-10 05:04:11   using MLP layer as FFN
+2026-04-10 05:04:14   
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 55, in <module>
+    for name, param in model.module.backbone.named_parameters():
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1709, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'RGBTVPR_Net' object has no attribute 'backbone'
+
+2026-04-10 05:11:06   Use 1 GPUs and 80 CPUs
+2026-04-10 05:11:06   There are 0 queries without any positives
+2026-04-10 05:11:07   using MLP layer as FFN
+2026-04-10 05:11:09   using MLP layer as FFN
+2026-04-10 05:11:12   
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 55, in <module>
+    for name, param in model.module.backbone.named_parameters():
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1709, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'RGBTVPR_Net' object has no attribute 'backbone'
+
+2026-04-10 05:35:26   Use 1 GPUs and 80 CPUs
+2026-04-10 05:35:27   There are 0 queries without any positives
+2026-04-10 05:35:27   using MLP layer as FFN
+2026-04-10 05:35:29   using MLP layer as FFN
+2026-04-10 05:35:32   
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 53, in <module>
+    for name, param in model.module.backbone.named_parameters():
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1709, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'RGBTVPR_Net' object has no attribute 'backbone'
+
+2026-04-10 05:41:11   Use 8 GPUs and 80 CPUs
+2026-04-10 05:41:12   There are 0 queries without any positives
+2026-04-10 05:41:12   using MLP layer as FFN
+2026-04-10 05:41:14   using MLP layer as FFN
+2026-04-10 05:41:18   
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 53, in <module>
+    for name, param in model.module.backbone.named_parameters():
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1709, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'RGBTVPR_Net' object has no attribute 'backbone'
+
+2026-04-10 05:43:32   Use 8 GPUs and 80 CPUs
+2026-04-10 05:43:32   There are 0 queries without any positives
+2026-04-10 05:43:32   using MLP layer as FFN
+2026-04-10 05:43:35   using MLP layer as FFN
+2026-04-10 05:43:38   Start training epoch: 00
+2026-04-10 05:44:15   
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 106, in <module>
+    triplets_ds.compute_triplets(args, model)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 296, in compute_triplets
+    self.compute_triplets_partial(args, model)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 371, in compute_triplets_partial
+    cache = self.compute_cache(args, model, subset_ds, cache_shape=(len(self), args.features_dim))
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 320, in compute_cache
+    global_features = model(images)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/parallel/data_parallel.py", line 185, in forward
+    outputs = self.parallel_apply(replicas, inputs, module_kwargs)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/parallel/data_parallel.py", line 200, in parallel_apply
+    return parallel_apply(replicas, inputs, kwargs, self.device_ids[:len(replicas)])
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/parallel/parallel_apply.py", line 108, in parallel_apply
+    output.reraise()
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/_utils.py", line 705, in reraise
+    raise exception
+AttributeError: Caught AttributeError in replica 0 on device 0.
+Original Traceback (most recent call last):
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/parallel/parallel_apply.py", line 83, in _worker
+    output = module(*input, **kwargs)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/network.py", line 118, in forward
+    x = self.fusev24(
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1709, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'RGBTVPR_Net' object has no attribute 'fusev24'
+
+
+2026-04-10 05:51:32   Use 8 GPUs and 80 CPUs
+2026-04-10 05:51:33   There are 0 queries without any positives
+2026-04-10 05:51:33   using MLP layer as FFN
+2026-04-10 05:51:35   using MLP layer as FFN
+2026-04-10 05:51:38   Start training epoch: 00
+2026-04-10 05:51:48   
+Traceback (most recent call last):
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/train.py", line 106, in <module>
+    triplets_ds.compute_triplets(args, model)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 296, in compute_triplets
+    self.compute_triplets_partial(args, model)
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 371, in compute_triplets_partial
+    cache = self.compute_cache(args, model, subset_ds, cache_shape=(len(self), args.features_dim))
+  File "/home/jwkim/workspace/dual_THR2RGB/THR2RGB_Cross_Place_Recognition/datasets_dual.py", line 320, in compute_cache
+    global_features = model(images)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/parallel/data_parallel.py", line 184, in forward
+    replicas = self.replicate(self.module, self.device_ids[:len(inputs)])
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/parallel/data_parallel.py", line 189, in replicate
+    return replicate(module, device_ids, not torch.is_grad_enabled())
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/parallel/replicate.py", line 110, in replicate
+    param_copies = _broadcast_coalesced_reshape(params, devices, detach)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/parallel/replicate.py", line 79, in _broadcast_coalesced_reshape
+    return comm.broadcast_coalesced(tensors, devices)
+  File "/home/jwkim/.local/lib/python3.10/site-packages/torch/nn/parallel/comm.py", line 57, in broadcast_coalesced
+    return torch._C._broadcast_coalesced(tensors, devices, buffer_size)
+KeyboardInterrupt
+
+2026-04-10 05:52:13   Use 1 GPUs and 80 CPUs
+2026-04-10 05:52:13   There are 0 queries without any positives
+2026-04-10 05:52:13   using MLP layer as FFN
+2026-04-10 05:52:15   using MLP layer as FFN
+2026-04-10 05:52:18   Start training epoch: 00
+2026-04-10 05:58:24   Epoch[00](1/5): current batch triplet loss = 0.00271330, average epoch triplet loss = 0.04264554
+2026-04-10 06:03:33   Epoch[00](2/5): current batch triplet loss = 0.00023738, average epoch triplet loss = 0.02858803

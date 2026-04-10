@@ -24,12 +24,10 @@ import random
 parser = Parser()
 args = parser.parse_arguments()
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,1'
 commons.setup_logging(args.save_dir)
 commons.seed_everything(args.seed)
 
 start_time = datetime.now()
-
 utils.save_to_yaml(args)
 logging.debug(f"The outputs are being saved in {args.save_dir}")
 
@@ -37,7 +35,7 @@ logging.info(f"Use {torch.cuda.device_count()} GPUs and {multiprocessing.cpu_cou
 
 '''Datasets'''
 args.sequences = ['KAIST']  # Use KAIST sequence for training
-DATASET_FOLDER = "./STHEREO_Mat"
+DATASET_FOLDER = "./Datasets"
 
 triplets_ds = datasets_dual.TripletsSTheReODual(args, DATASET_FOLDER)
 train_ds = datasets_dual.BaseSTheReODual(args, DATASET_FOLDER, split='train')
@@ -52,7 +50,11 @@ model = model.to(args.device)
 model = torch.nn.DataParallel(model)
 
 ## Freeze parameters except adapter
-for name, param in model.module.backbone.named_parameters():
+for name, param in model.module.rgb_backbone.named_parameters():
+    if "adapter" not in name:
+        param.requires_grad = False
+        
+for name, param in model.module.thermal_backbone.named_parameters():
     if "adapter" not in name:
         param.requires_grad = False
 

@@ -46,17 +46,21 @@ class BaseSTheReODual(data.Dataset):
         super().__init__()
         self.dataset_folder = dataset_folder
         self.img_time = args.img_time
-        self.matStruct = [loadmat(os.path.join(self.dataset_folder, seq, f'sthereo_{split}.mat'))['dbStruct'] for seq in
+        self.matStruct = [loadmat(os.path.join(self.dataset_folder, 'save_mat', split, seq, f'sthereo_{split}.mat'))['dbStruct'] for seq in
                           args.sequences]
+        
         for seq in args.sequences:
             print("load dataset:", seq)
+            
         self.seq_num = len(self.matStruct)
         self.resize = args.resize
         self.test_method = args.test_method
-        # 这里是拿到所有databse的位置
+
         self.database_utms = np.concatenate(
             [mat['db_pose'][0, 0] for mat in self.matStruct]
         )
+        
+        # Query 구성
         if self.img_time == 'allday':
             self.queries_utms = np.concatenate([
                 np.concatenate((
@@ -72,18 +76,19 @@ class BaseSTheReODual(data.Dataset):
                     mat['q_pose_afternoon'][0, 0]
                 )) for mat in self.matStruct
             ])
-
         elif self.img_time == 'nighttime':
             self.queries_utms = np.concatenate([
                 mat['q_pose_evening'][0, 0] for mat in self.matStruct
             ])
 
+        # Positive Sampling용 KNN 구성
         knn = NearestNeighbors(n_jobs=-1)
         knn.fit(self.database_utms)
         self.soft_positives_per_query = knn.radius_neighbors(
             self.queries_utms, radius=args.soft_positives_dist_threshold, return_distance=False
         )
 
+        # RGB Database 구성
         self.rgb_database_paths = np.concatenate(
             [mat['db_rgb'][0, 0] for mat in self.matStruct]
         )
@@ -102,12 +107,12 @@ class BaseSTheReODual(data.Dataset):
                     mat['q_rgb_afternoon'][0, 0]
                 )) for mat in self.matStruct
             ])
-
         elif self.img_time == 'nighttime':
             self.rgb_queries_paths = np.concatenate([
                 mat['q_rgb_evening'][0, 0] for mat in self.matStruct
             ])
 
+        # Thermal Database 구성
         self.t_database_paths = np.concatenate(
             [mat['db_t'][0, 0] for mat in self.matStruct]
         )
@@ -126,12 +131,10 @@ class BaseSTheReODual(data.Dataset):
                     mat['q_t_afternoon'][0, 0]
                 )) for mat in self.matStruct
             ])
-
         elif self.img_time == 'nighttime':
             self.t_queries_paths = np.concatenate([
                 mat['q_t_evening'][0, 0] for mat in self.matStruct
             ])
-
 
         assert (self.t_database_paths.shape) == (self.rgb_database_paths.shape) and (self.t_queries_paths.shape) == (self.rgb_queries_paths.shape)
 
@@ -151,7 +154,6 @@ class BaseSTheReODual(data.Dataset):
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
         return img
 
-
     def __getitem__(self, index):
         rgb_img = self.get_rgb_img(self.rgb_img_paths[index])
         thermal_img = self.get_thermal_img(self.t_img_paths[index])
@@ -165,7 +167,7 @@ class BaseSTheReODual(data.Dataset):
             rgb_img = self.__test_query_transform(rgb_img)
             thermal_img = self.__test_query_transform(thermal_img)
 
-        img = torch.cat((rgb_img, thermal_img), dim=0) 
+        img = torch.cat((rgb_img, thermal_img), dim=0)
         return img, index
 
     def __len__(self):
@@ -181,7 +183,6 @@ class BaseSTheReODual(data.Dataset):
         ### Transform query image according to self.test_method
         C, H, W = img.shape
         if self.test_method == "central_crop":
-            # NOTE: Scale before cropping
             scale = max(self.resize[0]/H, self.resize[1]/W)
             processed_img = torch.nn.functional.interpolate(img.unsqueeze(0), scale_factor=scale).squeeze(0)
             processed_img = transforms.functional.center_crop(processed_img, self.resize)
@@ -201,7 +202,6 @@ class TripletsSTheReODual(BaseSTheReODual):
     this is used for example when computing the cache, because we compute features
     of each image, not triplets.
     """
-
     def __init__(self, args, datasets_folder):
         super().__init__(args, datasets_folder, split='train')
 
@@ -217,7 +217,6 @@ class TripletsSTheReODual(BaseSTheReODual):
         self.resized_transform = transforms.Compose([
             base_transform,
             transforms.Resize(self.resize) if self.resize is not None else identity_transform,
-            # base_transform
         ])
         self.query_transform = transforms.Compose([
             self.resized_transform,

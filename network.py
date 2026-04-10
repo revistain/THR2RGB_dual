@@ -6,7 +6,6 @@ from backbone.vision_transformer import vit_small, vit_base, vit_large, vit_gian
 import math
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
-from models import helper
 import torchvision.models as models
 
 class GeM(nn.Module):
@@ -116,12 +115,14 @@ class RGBTVPR_Net(nn.Module):
         thermal_x = self.thermal_backbone(thermal_x)
         B, P, D = rgb_x["x_prenorm"].shape
 
-        x = self.fusev24(rgb_x["x_norm_clstoken"], rgb_x["x_norm_patchtokens"],\
-                    thermal_x["x_norm_clstoken"], thermal_x["x_norm_patchtokens"])
+        x = self.fusion(
+            rgb_x["x_norm_clstoken"], rgb_x["x_norm_patchtokens"],
+            thermal_x["x_norm_clstoken"], thermal_x["x_norm_patchtokens"],
+        )
         # x = rgb_x["x_norm_patchtokens"] + thermal_x["x_norm_patchtokens"]
         x = x.permute(0, 2, 1)
         x = x.view(B, D, 16, 16)
-        '''只剩一个768维的向量'''
+        
         x = self.aggregation(x) # [B, 768]
         
         return x
