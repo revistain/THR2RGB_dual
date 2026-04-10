@@ -1,4 +1,7 @@
 .vscode/
 __pycache__/
 ._*
+__*/
 .DS_Store
+logs/
+quickstart.ipynb
