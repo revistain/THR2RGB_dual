@@ -5,3 +5,5 @@ __*/
 .DS_Store
 logs/
 quickstart.ipynb
+LICENSE
+*.pth

@@ -42,10 +42,9 @@ def collate_fn(batch):
 
 
 class BaseSTheReODual(data.Dataset):
-    def __init__(self, args, datasets_folder="datasets", dataset_name="pitts30k", split="train"):
+    def __init__(self, args, datasets_folder="datasets", split="train"):
         super().__init__()
         self.args = args
-        self.dataset_name = dataset_name
         self.split = split
 
         # 1. Custom Dataset Sequence 확인 (ms2 vs sthereo)
@@ -163,7 +162,7 @@ class BaseSTheReODual(data.Dataset):
         return len(self.rgb_img_paths)
 
     def __repr__(self):
-        return "STheReO"
+        return self.dataset_type
 
     def get_positives(self):
         return self.soft_positives_per_query
@@ -325,7 +324,8 @@ class TripletsSTheReODual(BaseSTheReODual):
         sampled_queries_indexes = np.random.choice(self.queries_num, args.cache_refresh_rate, replace=False)
 
         # Sample 1000 random database images for the negatives
-        sampled_database_indexes = np.random.choice(self.database_num, self.neg_samples_num, replace=False)
+        neg_sample_size = min(self.neg_samples_num, self.database_num)                                                                                                           
+        sampled_database_indexes = np.random.choice(self.database_num, neg_sample_size, replace=False)
 
         positives_indexes = [self.hard_positives_per_query[i] for i in sampled_queries_indexes]
         positives_indexes = [p for pos in positives_indexes for p in pos]

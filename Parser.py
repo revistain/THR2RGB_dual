@@ -50,9 +50,10 @@ class Parser():
 
         ### Dataset parameters
         self.parser.add_argument("--img_time", type=str, default="allday", choices=["allday", "daytime", "nighttime"])
-        self.parser.add_argument("--sequences", type=str, default=['KAIST', 'SNU', 'Valley'], nargs="+",
-                                 help="List of sequences to load from the dataset. Default: ['KAIST', 'SNU', 'Valley']")
-        self.parser.add_argument("--test_seq", type=str, default=None, help="path of the dataset")
+        self.parser.add_argument("--datasets_folder", type=str, default=None, help="Path with all datasets")
+        self.parser.add_argument("--train_seq", type=str, default="none", help="_", nargs="+", choices=["Campus", "Residential", "Urban", 'KAIST', 'SNU', 'Valley', 'r0', 'r1'])
+        self.parser.add_argument("--test_seq", type=str, default="none", help="_", nargs="+", choices=["Campus", "Residential", "Urban", 'KAIST', 'SNU', 'Valley', 'r0', 'r1'])
+
         
         # Data augmentation parameters, # applyed to the training set
         self.parser.add_argument("--brightness", type=float, default=None, help="_")
@@ -77,7 +78,8 @@ class Parser():
                             help="Path to load checkpoint from, for resuming training or testing.")
         self.parser.add_argument("--save_all", type=bool, default=False)
         self.parser.add_argument("--comment", type=str, default="default")
-    
+        self.parser.add_argument("--use_fast_track", action='store_true', help="_")
+
     def parse_arguments(self):
         args = self.parser.parse_args()
 

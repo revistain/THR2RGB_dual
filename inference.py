@@ -10,7 +10,7 @@ import time
 
 # TODO: can be less memory cost
 # TODO: finish the uncompleted parts
-def inference(args, eval_ds, model, pca=None, k=1, use_cuda=True, verbose=True):
+def inference(args, eval_ds, model, seq_name):
     '''
     hard_resize: directly use the resized image
     single_query: use the resized image, and set query_infer_batchsize=1 (used when the query images have varying size)

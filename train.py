@@ -9,25 +9,40 @@ import multiprocessing
 from datetime import datetime
 from torch.utils.data.dataloader import DataLoader
 
-from utils import save_files, get_timestamp
 from Parser import Parser
+from utils import *
 import commons
-import utils
 import datasets_dual
 import inference
 import network
 
 def train(args, start_time):
     '''Datasets'''
-    args.sequences = ['KAIST']  # Use KAIST sequence for training
     DATASET_FOLDER = "./Datasets"
-
+    ############################################################
+    args.sequences = args.train_seq
+    
     triplets_ds = datasets_dual.TripletsSTheReODual(args, DATASET_FOLDER)
-    train_ds = datasets_dual.BaseSTheReODual(args, DATASET_FOLDER, split='train')
-    args.sequences = ['SNU', 'Valley']
-    args.soft_positives_dist_threshold = 10
-    test_ds = datasets_dual.BaseSTheReODual(args, DATASET_FOLDER, split='test')
+    logging.info(f"Train query set: {triplets_ds}")
+    logging.info(f"[Train - {args.train_seq}] Database: {triplets_ds.database_num}, Queries: {triplets_ds.queries_num}")
 
+    test_sequences = args.test_seq
+    val_ds_list = []
+    test_ds_list = []
+
+    for seq in test_sequences:
+        args.sequences = [seq]  
+        
+        val_ds0 = datasets_dual.BaseSTheReODual(args, args.datasets_folder, "test")
+        val_ds_list.append(val_ds0)
+        logging.info(f"[Val - {seq}] Database: {val_ds0.database_num}, Queries: {val_ds0.queries_num}, Total: {len(val_ds0)}")
+        
+        val_ds1 =datasets_dual.BaseSTheReODual(args, args.datasets_folder, "test")
+        test_ds_list.append(val_ds1)
+        logging.info(f"[Test - {seq}] Database: {val_ds1.database_num}, Queries: {val_ds1.queries_num}, Total: {len(val_ds1)}")
+
+    args.sequences = args.train_seq
+    ############################################################
 
     '''Model'''
     model = network.RGBTVPR_Net(pretrained_foundation = True, foundation_model_path = args.foundation_model_path)
@@ -69,10 +84,10 @@ def train(args, start_time):
 
     '''Resume from checkpoint'''
     if args.resume:
-        model, _, best_r1, start_epoch_num, not_improved_num = utils.resume_train(args, model, strict=False)
-        logging.info(f"Resuming from epoch {start_epoch_num} with best recall@1 {best_r1:.1f}")
+        model, _, best_r1_r5, start_epoch_num, not_improved_num = utils.resume_train(args, model, strict=False)
+        logging.info(f"Resuming from epoch {start_epoch_num} with best (R@1 + R@5) {best_r1_r5:.1f}")
     else:
-        best_r1 = start_epoch_num = not_improved_num = 0
+        best_r1_r5 = start_epoch_num = not_improved_num = 0
 
     # Flags
     thermal_flag = torch.ones(1, dtype=torch.bool)
@@ -132,49 +147,45 @@ def train(args, start_time):
                 epoch_losses = np.append(epoch_losses, batch_loss)
                 
                 del global_loss, global_features
+                if args.use_fast_track: break
 
             logging.info(f"Epoch[{epoch_num:02d}]({loop_num + 1}/{loops_num}): " +
                         f"current batch triplet loss = {batch_loss:.8f}, " +
                         f"average epoch triplet loss = {epoch_losses.mean():.8f}")
+            if args.use_fast_track: break
 
         logging.info(f"epoch {epoch_num:02d} time: {str(datetime.now() - epoch_start_time)[:-7]}, ")
 
-        # Compute recalls
-        recalls, recalls_str = inference.inference(args, train_ds, model)
-        logging.info(f"Recalls: {recalls_str}")
+        # Compute recalls on all validation sequences
+        all_r1, all_r5 = [], []
+        for seq, val_dataset in zip(test_sequences, val_ds_list):
+            recalls, recalls_str = inference.inference(args, val_dataset, model, seq)
+            logging.info(f"Recalls on [{seq}] {val_dataset}: {recalls_str}")
+            all_r1.append(recalls[0])
+            all_r5.append(recalls[1])
 
-        is_best = recalls[0] > best_r1
+        avg_r1_r5 = np.mean(all_r1) + np.mean(all_r5)
+        is_best = avg_r1_r5 > best_r1_r5
 
-        # Save latest checkpoint, which contains all training parameters
-        utils.save_checkpoint(args, {"epoch_num": epoch_num, "model_state_dict": model.state_dict(),
-                                    "optimizer_state_dict": optimizer.state_dict(), "recalls": recalls, "best_r1": best_r1,
-                                    "not_improved_num": not_improved_num
-                                    }, is_best, filename="last_model.pth")
-        # Save all
-        # logging.info(f"Saved checkpoint for epoch {epoch_num:02d}")
-        # utils.save_checkpoint(args, {"epoch_num": epoch_num, "model_state_dict": model.state_dict(),
-        #                             "optimizer_state_dict": optimizer.state_dict(), "recalls": recalls, "best_r1": best_r1,
-        #                             "not_improved_num": not_improved_num
-        #                             }, False, filename=f"epoch_{epoch_num}_model.pth")
+        save_checkpoint(args, {"epoch_num": epoch_num, "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "recalls": (np.mean(all_r1), np.mean(all_r5)), "best_r1_r5": best_r1_r5,
+            "not_improved_num": not_improved_num
+        }, is_best, filename="last_model.pth")
 
-        # If recall@1 did not improve for "many" epochs, stop training
         if is_best:
-            logging.info(f"Improved: previous best R@1 = {best_r1:.1f}, current R@1 = {(recalls[0]):.1f}")
-            best_r1 = recalls[0]
+            logging.info(f"Improved: previous best avg (R@1 + R@5) = {best_r1_r5:.1f}, current = {avg_r1_r5:.1f}")
+            best_r1_r5 = avg_r1_r5
             not_improved_num = 0
         else:
             not_improved_num += 1
-            logging.info(
-                f"Not improved: {not_improved_num} / {args.patience}: best R@1 = {best_r1:.1f}, current R@1 = {(recalls[0]):.1f}")
+            logging.info(f"Not improved: {not_improved_num} / {args.patience}: best = {best_r1_r5:.1f}, current = {avg_r1_r5:.1f}")
             if not_improved_num >= args.patience:
                 logging.info(f"Performance did not improve for {not_improved_num} epochs. Stop training.")
                 break
-
-    logging.info(f"Best R@1: {best_r1:.2f}")
-    logging.info(f"Trained for {epoch_num + 1:02d} epochs, in total in {str(datetime.now() - start_time)[:-7]}")
-
-    recalls, recalls_str = inference.inference(args, test_ds, model)
-    logging.info(f"Recalls on {test_ds}: {recalls_str}")
+            
+    logging.info(f"Best avg (R@1 + R@5): {best_r1_r5:.1f}")
+    logging.info(f"Trained for {epoch_num+1:02d} epochs, in total in {str(datetime.now() - start_time)[:-7]}")
 
 if __name__ == "__main__":
     '''Setup'''
@@ -185,7 +196,7 @@ if __name__ == "__main__":
     args.save_dir = os.path.join(args.save_dir, args.comment, get_timestamp())
     commons.setup_logging(args.save_dir)
     save_files(args.save_dir)
-    utils.save_to_yaml(args)
+    save_to_yaml(args)
     
     logging.debug(f"The outputs are being saved in {args.save_dir}")
     logging.info(f"Use {torch.cuda.device_count()} GPUs and {multiprocessing.cpu_count()} CPUs")
